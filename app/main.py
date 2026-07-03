@@ -1,4 +1,7 @@
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from app.config import get_settings
 from app.core.agent.service import AgentService
 from app.api.routers import agent, health, knowledge
@@ -30,10 +33,19 @@ def create_app() -> FastAPI:
     app.state.agent_service = agent_service
     app.state.knowledge_service = knowledge_service
 
-    # Construimos los routers 
+    # Construimos los routers
     app.include_router(agent.router)
     app.include_router(health.router)
     app.include_router(knowledge.router)
+
+    # Publicamos la interfaz web (biblioteca de conocimiento) en la raíz
+    static_dir = Path(__file__).parent / "static"
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+    @app.get("/", include_in_schema=False)
+    async def serve_ui() -> FileResponse:
+        return FileResponse(static_dir / "index.html")
+
     return app
 
 

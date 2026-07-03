@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAGent · Biblioteca de conocimiento</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ Barra lateral ============ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">📚</div>
+        <div class="brand-text">
+          <h1>RAGent</h1>
+          <p>Biblioteca de conocimiento</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="search">
+          <span class="nav-icon">🔎</span>
+          <span>
+            <span class="nav-title">Búsqueda</span>
+            <span class="nav-subtitle">Consulta las fuentes</span>
+          </span>
+        </button>
+        <button class="nav-item" data-view="manage">
+          <span class="nav-icon">🗂️</span>
+          <span>
+            <span class="nav-title">Gestión</span>
+            <span class="nav-subtitle">Colecciones e ingesta</span>
+          </span>
+        </button>
+      </nav>
+
+      <div class="sidebar-sources">
+        <h2>Fuentes disponibles</h2>
+        <ul id="sidebar-source-list" class="sidebar-source-list">
+          <li class="muted">Cargando…</li>
+        </ul>
+      </div>
+
+      <footer class="sidebar-footer">
+        <span id="health-indicator" class="health health-unknown" title="Estado del servicio">● comprobando…</span>
+      </footer>
+    </aside>
+
+    <!-- ============ Contenido principal ============ -->
+    <main class="main">
+
+      <!-- ========== Vista: Búsqueda ========== -->
+      <section id="view-search" class="view active">
+        <header class="view-header">
+          <h2>Búsqueda</h2>
+          <p>Consulta las fuentes de conocimiento directamente o conversa con un agente que buscará por ti.</p>
+        </header>
+
+        <div class="mode-switch" role="tablist">
+          <button id="mode-direct" class="mode-btn active" role="tab">Búsqueda directa</button>
+          <button id="mode-agent" class="mode-btn" role="tab">Preguntar a un agente</button>
+        </div>
+
+        <!-- ---- Modo: búsqueda directa ---- -->
+        <div id="panel-direct" class="panel active">
+          <div class="card">
+            <label class="field-label">Fuente de conocimiento</label>
+            <div id="direct-source-chips" class="chips"></div>
+
+            <form id="direct-search-form" class="search-form">
+              <div class="search-bar">
+                <input id="direct-query" type="text" placeholder="Ej.: portátil de Ana García, manual de fichajes, ticket sobre impresora…" autocomplete="off" required>
+                <select id="direct-limit" title="Número de resultados">
+                  <option value="3">3 resultados</option>
+                  <option value="5" selected>5 resultados</option>
+                  <option value="10">10 resultados</option>
+                  <option value="20">20 resultados</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="direct-results" class="results"></div>
+        </div>
+
+        <!-- ---- Modo: agente ---- -->
+        <div id="panel-agent" class="panel">
+          <div class="card chat-card">
+            <div class="chat-toolbar">
+              <label class="field-label" for="agent-select">Agente</label>
+              <select id="agent-select"></select>
+              <button id="chat-clear" class="btn btn-ghost" type="button" title="Vaciar conversación">Nueva conversación</button>
+            </div>
+
+            <div id="chat-thread" class="chat-thread">
+              <div class="chat-empty">
+                <span class="chat-empty-icon">🤖</span>
+                <p>Pregunta lo que necesites: el agente consultará las fuentes de conocimiento y te responderá.</p>
+              </div>
+            </div>
+
+            <form id="chat-form" class="chat-form">
+              <textarea id="chat-input" rows="1" placeholder="Escribe tu pregunta… (Enter para enviar, Mayús+Enter para salto de línea)" required></textarea>
+              <button type="submit" class="btn btn-primary" id="chat-send">Enviar</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== Vista: Gestión ========== -->
+      <section id="view-manage" class="view">
+        <header class="view-header">
+          <h2>Gestión de fuentes de conocimiento</h2>
+          <p>Crea las colecciones e inserta datos en las fuentes a través de la API.</p>
+        </header>
+
+        <div class="manage-grid">
+          <!-- Catálogo de fuentes -->
+          <div class="card">
+            <h3 class="card-title">Catálogo</h3>
+            <div id="manage-source-list" class="manage-source-list">
+              <p class="muted">Cargando fuentes…</p>
+            </div>
+          </div>
+
+          <!-- Ingesta -->
+          <div class="card">
+            <h3 class="card-title">Ingesta de datos</h3>
+
+            <label class="field-label" for="ingest-source">Fuente de destino</label>
+            <select id="ingest-source"></select>
+
+            <div class="mode-switch small" role="tablist">
+              <button id="ingest-mode-json" class="mode-btn active" role="tab">Datos JSON</button>
+              <button id="ingest-mode-html" class="mode-btn" role="tab">Fichero HTML</button>
+            </div>
+
+            <!-- Ingesta JSON -->
+            <div id="ingest-panel-json" class="panel active">
+              <p class="hint">Pega una <strong>lista JSON</strong> de objetos o carga un fichero <code>.json</code>. Se enviará a <code>POST /knowledge-source/{id}/points/from-json</code>.</p>
+              <textarea id="ingest-json-text" rows="10" spellcheck="false" placeholder='[
+  { "id": 1, "nombre": "…" },
+  { "id": 2, "nombre": "…" }
+]'></textarea>
+              <div class="ingest-actions">
+                <label class="btn btn-ghost file-btn">
+                  Cargar fichero .json
+                  <input id="ingest-json-file" type="file" accept=".json,application/json" hidden>
+                </label>
+                <button id="ingest-json-send" class="btn btn-primary" type="button">Insertar datos</button>
+              </div>
+            </div>
+
+            <!-- Ingesta HTML -->
+            <div id="ingest-panel-html" class="panel">
+              <p class="hint">Sube un manual en HTML. Se enviará a <code>POST /knowledge-source/{id}/points/from-html</code>. Pensado para la fuente <strong>manuals</strong>.</p>
+              <label id="html-dropzone" class="dropzone">
+                <input id="ingest-html-file" type="file" accept=".html,.htm,text/html" hidden>
+                <span class="dropzone-icon">📄</span>
+                <span id="html-dropzone-text">Arrastra aquí un fichero HTML<br>o haz clic para seleccionarlo</span>
+              </label>
+              <div class="ingest-actions">
+                <button id="ingest-html-send" class="btn btn-primary" type="button" disabled>Subir manual</button>
+              </div>
+            </div>
+
+            <div id="ingest-result" class="ingest-result"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

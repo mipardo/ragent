@@ -4,6 +4,16 @@ Backend en Python que publica agentes conversacionales mediante una API compatib
 
 RAGent funciona como una capa intermedia que encapsula modelos agénticos. Hacia fuera expone una interfaz estable y OpenAI-compatible; hacia dentro resuelve qué agente ejecutar, qué prompt usar, qué herramientas puede invocar, qué fuentes de conocimiento consultar y contra qué proveedor real de IA debe correr. El cliente no habla directamente con el modelo base configurado: selecciona un agente publicado y RAGent orquesta la ejecución completa.
 
+## Interfaz web
+
+RAGent incluye una interfaz web tipo "biblioteca de conocimiento" servida por la propia aplicación en la raíz (`/`). Es una SPA estática sin dependencias (HTML, CSS y JavaScript en `app/static/`) que consume la API publicada y ofrece:
+
+- Búsqueda directa: selección de fuente de conocimiento, consulta y visualización de los resultados de retrieval con puntuación y metadatos (`POST /knowledge-source/{id}/search`).
+- Búsqueda mediante agentes: conversación con los agentes públicos listados en `/v1/models`, manteniendo el historial de la conversación (`POST /v1/chat/completions`).
+- Gestión de fuentes: catálogo de fuentes, creación de colecciones (`POST /knowledge-source/{id}`) e ingesta de datos JSON (`points/from-json`) o de manuales HTML (`points/from-html`).
+
+Con el despliegue local, la interfaz queda disponible en `http://localhost:8000/`.
+
 ## API publicada
 
 La API separa tres superficies funcionales:
