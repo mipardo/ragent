@@ -11,6 +11,7 @@ class AgentCatalog:
 
     Funciones públicas:
      - Listar los agentes publicados (list_public_agents).
+     - Listar todos los agentes definidos (list_agents).
      - Obtener un agente por identificador (get_agent).
     """
 
@@ -40,6 +41,8 @@ class AgentCatalog:
             ),
         }
 
+    def list_agents(self) -> list[AgentDefinition]:
+        return list(self._agents.values())
 
     def list_public_agents(self) -> list[AgentDefinition]:
         return [

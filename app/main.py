@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.config import get_settings
 from app.core.agent.service import AgentService
-from app.api.routers import agent, health, knowledge
+from app.api.routers import agent, health, knowledge, ui
 from app.core.knowledge_source.service import KnowledgeSourceService
 
 
@@ -37,6 +37,7 @@ def create_app() -> FastAPI:
     app.include_router(agent.router)
     app.include_router(health.router)
     app.include_router(knowledge.router)
+    app.include_router(ui.router)
 
     # Publicamos la interfaz web (biblioteca de conocimiento) en la raíz
     static_dir = Path(__file__).parent / "static"

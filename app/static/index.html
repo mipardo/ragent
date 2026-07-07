@@ -1,183 +1,2002 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAGent · Biblioteca de conocimiento</title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-</head>
-<body>
-  <div class="app">
 
-    <!-- ============ Barra lateral ============ -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAGent · Panel de administración</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      background: #f6f7fa;
+      font-family: 'Public Sans', system-ui, sans-serif;
+      color: #171a24
+    }
+
+    a {
+      color: #4b57d6;
+      text-decoration: none
+    }
+
+    a:hover {
+      color: #3a45b8
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #d5d8e4;
+      border-radius: 6px;
+      border: 2px solid #f6f7fa
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    .layout {
+      display: flex;
+      height: 100vh;
+      overflow: hidden
+    }
+
+    /* ---------- sidebar ---------- */
+    .sidebar {
+      width: 236px;
+      flex: none;
+      background: #fff;
+      border-right: 1px solid #e6e8f0;
+      display: flex;
+      flex-direction: column
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 20px 18px 18px
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: #4b57d6;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 15.5px
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: #8c92a8;
+      font-weight: 500
+    }
+
+    .nav {
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .nav-section {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #a5aabb;
+      padding: 12px 10px 6px
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .12s;
+      color: #5d6478
+    }
+
+    .nav-item:hover {
+      background: #f4f5fb
+    }
+
+    .nav-item.active {
+      background: #eef0fd;
+      color: #4b57d6;
+      font-weight: 600
+    }
+
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 14px;
+      border-top: 1px solid #eef0f5
+    }
+
+    .qdrant-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #f7f8fc;
+      border: 1px solid #eaecf4;
+      border-radius: 9px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: none
+    }
+
+    .dot.ok {
+      background: #22b07d;
+      box-shadow: 0 0 0 3px rgba(34, 176, 125, .15)
+    }
+
+    .dot.ko {
+      background: #d64b57;
+      box-shadow: 0 0 0 3px rgba(214, 75, 87, .15)
+    }
+
+    .qdrant-pill-title {
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .qdrant-pill-sub {
+      font-size: 10.5px;
+      color: #8c92a8;
+      font-family: 'IBM Plex Mono', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 150px
+    }
+
+    .sidebar-version {
+      font-size: 10.5px;
+      color: #a5aabb;
+      padding: 10px 4px 2px;
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    /* ---------- main ---------- */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0
+    }
+
+    .topbar {
+      height: 56px;
+      flex: none;
+      border-bottom: 1px solid #e6e8f0;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 26px
+    }
+
+    .crumb {
+      font-size: 13px;
+      color: #8c92a8;
+      font-weight: 500
+    }
+
+    .crumb .sep {
+      color: #c8ccda;
+      margin: 0 6px
+    }
+
+    .crumb .cur {
+      color: #171a24;
+      font-weight: 600
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .chip-health {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: #0b8f6f;
+      background: #e7f7f1;
+      border: 1px solid #bfe8da;
+      border-radius: 7px;
+      padding: 5px 10px
+    }
+
+    .chip-health.ko {
+      color: #b23a44;
+      background: #fdeeef;
+      border-color: #f2c7cb
+    }
+
+    .chip-host {
+      font-size: 12px;
+      color: #5d6478;
+      background: #f1f2f8;
+      border: 1px solid #e6e8f0;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-weight: 500
+    }
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto
+    }
+
+    .page {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 23px;
+      font-weight: 700;
+      letter-spacing: -.01em
+    }
+
+    .page-sub {
+      margin: 0;
+      font-size: 13.5px;
+      color: #8c92a8
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e6e8f0;
+      border-radius: 12px
+    }
+
+    /* badges & buttons */
+    .badge {
+      font-size: 10.5px;
+      font-weight: 600;
+      border-radius: 5px;
+      padding: 2px 8px;
+      display: inline-block
+    }
+
+    .badge.green {
+      color: #0b8f6f;
+      background: #e7f7f1
+    }
+
+    .badge.indigo {
+      color: #4b57d6;
+      background: #eef0fd
+    }
+
+    .badge.gray {
+      color: #8c92a8;
+      background: #f1f2f8
+    }
+
+    .badge.amber {
+      color: #c58b2f;
+      background: #fbf1e0
+    }
+
+    .badge.red {
+      color: #b23a44;
+      background: #fdeeef
+    }
+
+    .btn {
+      border: none;
+      background: #4b57d6;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 9px;
+      font-family: inherit;
+      cursor: pointer
+    }
+
+    .btn:hover {
+      background: #3a45b8
+    }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed
+    }
+
+    .btn-sec {
+      border: 1px solid #e0e2ee;
+      background: #fff;
+      color: #5d6478;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      cursor: pointer
+    }
+
+    .btn-sec:hover {
+      background: #f7f8fc
+    }
+
+    .btn-sec.indigo {
+      color: #4b57d6
+    }
+
+    /* stat cards */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid #e6e8f0;
+      border-radius: 12px;
+      padding: 16px 18px
+    }
+
+    .stat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px
+    }
+
+    .stat-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #a5aabb
+    }
+
+    .stat-value {
+      font-size: 21px;
+      font-weight: 700
+    }
+
+    .stat-sub {
+      font-size: 11.5px;
+      color: #8c92a8;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-top: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    /* overview table */
+    .split {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start
+    }
+
+    .table-card {
+      flex: 2;
+      min-width: 0;
+      overflow: hidden
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 18px;
+      border-bottom: 1px solid #eef0f5
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 700
+    }
+
+    .card-head .hint {
+      font-size: 12px;
+      color: #8c92a8
+    }
+
+    .thead {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 9px 18px;
+      background: #fafbfd;
+      border-bottom: 1px solid #eef0f5;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #a5aabb
+    }
+
+    .trow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px;
+      border-bottom: 1px solid #f1f2f7
+    }
+
+    .trow:last-child {
+      border-bottom: none
+    }
+
+    .c-src {
+      flex: 1.4;
+      min-width: 0
+    }
+
+    .c-src .t {
+      font-size: 13.5px;
+      font-weight: 600
+    }
+
+    .c-src .d {
+      font-size: 11.5px;
+      color: #8c92a8;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .c-col {
+      width: 110px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #5d6478
+    }
+
+    .c-ret {
+      width: 76px
+    }
+
+    .c-pts {
+      width: 80px;
+      text-align: right;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 600
+    }
+
+    .c-upd {
+      width: 96px;
+      text-align: right;
+      font-size: 11.5px;
+      color: #8c92a8
+    }
+
+    /* activity */
+    .activity-card {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden
+    }
+
+    .activity-body {
+      padding: 6px 18px 14px
+    }
+
+    .act {
+      display: flex;
+      gap: 11px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f4f5f9
+    }
+
+    .act:last-child {
+      border-bottom: none
+    }
+
+    .act .dot2 {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex: none
+    }
+
+    .act .txt {
+      font-size: 12.5px;
+      color: #33394a
+    }
+
+    .act .sub {
+      font-size: 11px;
+      color: #a5aabb;
+      margin-top: 2px
+    }
+
+    .act code,
+    .act .m {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px
+    }
+
+    .empty {
+      font-size: 12.5px;
+      color: #a5aabb;
+      padding: 16px 2px
+    }
+
+    /* list cards (agents / sources / results) */
+    .item-card {
+      background: #fff;
+      border: 1px solid #e6e8f0;
+      border-radius: 11px;
+      padding: 13px 15px;
+      cursor: pointer
+    }
+
+    .item-card:hover {
+      border-color: #c9cdf0
+    }
+
+    .item-card.active {
+      border-color: #4b57d6;
+      box-shadow: 0 2px 8px rgba(75, 87, 214, .12)
+    }
+
+    .item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .item-desc {
+      font-size: 11.5px;
+      color: #8c92a8;
+      line-height: 1.45
+    }
+
+    /* detail panel */
+    .detail {
+      flex: 1;
+      min-width: 0;
+      background: #fff;
+      border: 1px solid #e6e8f0;
+      border-radius: 12px;
+      padding: 22px 24px
+    }
+
+    .detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px
+    }
+
+    .detail-title-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 7px
+    }
+
+    .detail-title-row h2 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 700
+    }
+
+    .detail-desc {
+      margin: 0;
+      font-size: 13px;
+      color: #5d6478;
+      line-height: 1.5;
+      max-width: 560px
+    }
+
+    .kv-grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px
+    }
+
+    .kv {
+      background: #fafbfd;
+      border: 1px solid #eef0f5;
+      border-radius: 9px;
+      padding: 10px 12px
+    }
+
+    .kv .k {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #a5aabb;
+      margin-bottom: 4px
+    }
+
+    .kv .v {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 600;
+      word-break: break-all
+    }
+
+    .kv .v.green {
+      color: #0b8f6f
+    }
+
+    .kv .v.red {
+      color: #b23a44
+    }
+
+    .sect-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #a5aabb;
+      margin-bottom: 8px
+    }
+
+    .code {
+      background: #0f1320;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      color: #cbd0e2;
+      overflow: auto;
+      white-space: pre-wrap
+    }
+
+    .code.pre {
+      white-space: pre
+    }
+
+    .jk {
+      color: #9aa6ff
+    }
+
+    .js {
+      color: #8fe6b6
+    }
+
+    .jn {
+      color: #e7c78a
+    }
+
+    .tool-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #33394a;
+      background: #f4f5fb;
+      border: 1px solid #e4e6f2;
+      border-radius: 7px;
+      padding: 5px 10px
+    }
+
+    .tool-chip .td {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4b57d6
+    }
+
+    .tool-chip.util {
+      background: #f7f4ec;
+      border-color: #ece2cf
+    }
+
+    .tool-chip.util .td {
+      background: #c58b2f
+    }
+
+    /* chips selector */
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .chips .lbl {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #8c92a8
+    }
+
+    .chip {
+      font-size: 12px;
+      font-weight: 500;
+      color: #5d6478;
+      padding: 4px 10px;
+      border: 1px solid #e6e8f0;
+      border-radius: 16px;
+      cursor: pointer;
+      background: #fff
+    }
+
+    .chip:hover {
+      border-color: #c9cdf0
+    }
+
+    .chip.active {
+      font-weight: 600;
+      color: #4b57d6;
+      background: #eef0fd;
+      border-color: #eef0fd
+    }
+
+    /* ingest */
+    .ingest-card {
+      flex: 1;
+      min-width: 0;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column
+    }
+
+    .ingest-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 4px
+    }
+
+    .ingest-title h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .chip-endpoint {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      color: #4b57d6;
+      background: #eef0fd;
+      border-radius: 5px;
+      padding: 2px 7px
+    }
+
+    .ingest-sub {
+      margin: 0 0 14px;
+      font-size: 12.5px;
+      color: #8c92a8;
+      line-height: 1.5
+    }
+
+    .json-input {
+      flex: 1;
+      background: #0f1320;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      color: #cbd0e2;
+      min-height: 170px;
+      resize: vertical;
+      outline: none;
+      width: 100%
+    }
+
+    .drop {
+      flex: 1;
+      border: 2px dashed #d5d8e8;
+      border-radius: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 150px;
+      background: #fafbfd;
+      cursor: pointer
+    }
+
+    .drop.over {
+      border-color: #4b57d6;
+      background: #eef0fd
+    }
+
+    .drop .t {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5d6478
+    }
+
+    .drop .s {
+      font-size: 11.5px;
+      color: #a5aabb;
+      margin-top: 2px
+    }
+
+    .file-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #f7f8fc;
+      border: 1px solid #eaecf4;
+      border-radius: 9px
+    }
+
+    .file-pill .n {
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    .file-pill .m {
+      font-size: 10.5px;
+      color: #a5aabb
+    }
+
+    .file-pill .ok {
+      font-size: 11px;
+      color: #0b8f6f;
+      font-weight: 600
+    }
+
+    .ingest-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px
+    }
+
+    .ingest-foot .note {
+      font-size: 11.5px;
+      color: #a5aabb
+    }
+
+    .result-card {
+      padding: 18px 22px
+    }
+
+    .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px
+    }
+
+    .result-head h2 {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 700
+    }
+
+    .chip-status {
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 3px 9px;
+      border: 1px solid
+    }
+
+    .chip-status.ok {
+      color: #0b8f6f;
+      background: #e7f7f1;
+      border-color: #bfe8da
+    }
+
+    .chip-status.ko {
+      color: #b23a44;
+      background: #fdeeef;
+      border-color: #f2c7cb
+    }
+
+    .result-body {
+      display: flex;
+      gap: 24px;
+      align-items: center
+    }
+
+    .result-points {
+      font-size: 26px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #4b57d6
+    }
+
+    .result-points-lbl {
+      font-size: 11px;
+      color: #a5aabb;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase
+    }
+
+    /* search */
+    .search-bar {
+      background: #fff;
+      border: 1px solid #e6e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f7f8fc;
+      border: 1px solid #e4e6f0;
+      border-radius: 9px;
+      padding: 0 12px;
+      height: 40px;
+      min-width: 220px
+    }
+
+    .search-input-wrap input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13.5px;
+      color: #171a24;
+      font-family: inherit
+    }
+
+    .seg {
+      display: flex;
+      background: #f1f2f8;
+      border: 1px solid #e6e8f0;
+      border-radius: 8px;
+      padding: 2px
+    }
+
+    .seg span {
+      font-size: 11.5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      color: #5d6478
+    }
+
+    .seg span.on {
+      background: #fff;
+      color: #171a24;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .08)
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      border: 1px solid #e6e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff
+    }
+
+    .stepper button {
+      width: 28px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #171a24;
+      font-size: 15px;
+      border: none;
+      background: transparent;
+      cursor: pointer
+    }
+
+    .stepper button:first-child {
+      color: #8c92a8
+    }
+
+    .stepper button:last-child {
+      border-left: 1px solid #eef0f5
+    }
+
+    .stepper .val {
+      width: 30px;
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    .results-col {
+      width: 360px;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto
+    }
+
+    .results-meta {
+      font-size: 11.5px;
+      color: #8c92a8;
+      padding: 2px 2px 4px
+    }
+
+    .results-meta b {
+      color: #171a24;
+      font-weight: 700
+    }
+
+    .res-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px
+    }
+
+    .res-idx {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #a5aabb;
+      font-weight: 600
+    }
+
+    .res-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: #5d6478
+    }
+
+    .res-score {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #8c92a8
+    }
+
+    .item-card.active .res-score {
+      color: #4b57d6
+    }
+
+    .res-snippet {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #3d4453;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden
+    }
+
+    .score-ring-wrap {
+      flex: none;
+      text-align: center
+    }
+
+    .score-ring {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .score-ring .inner {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #4b57d6
+    }
+
+    .score-lbl {
+      font-size: 10px;
+      color: #a5aabb;
+      margin-top: 5px;
+      font-weight: 600;
+      letter-spacing: .04em
+    }
+
+    .search-detail {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: auto
+    }
+
+    /* toast */
+    #toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 50
+    }
+
+    .toast {
+      background: #171a24;
+      color: #fff;
+      font-size: 12.5px;
+      padding: 11px 16px;
+      border-radius: 9px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+      max-width: 380px;
+      animation: tin .2s ease
+    }
+
+    .toast.err {
+      background: #8f2530
+    }
+
+    @keyframes tin {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, .4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: -2px;
+      animation: spin .7s linear infinite;
+      margin-right: 7px
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- ================= SIDEBAR ================= -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">📚</div>
-        <div class="brand-text">
-          <h1>RAGent</h1>
-          <p>Biblioteca de conocimiento</p>
+        <div class="brand-logo">R</div>
+        <div style="line-height:1.1">
+          <div class="brand-name">RAGent</div>
+          <div class="brand-sub">Panel de administración</div>
         </div>
       </div>
-
       <nav class="nav">
-        <button class="nav-item active" data-view="search">
-          <span class="nav-icon">🔎</span>
-          <span>
-            <span class="nav-title">Búsqueda</span>
-            <span class="nav-subtitle">Consulta las fuentes</span>
-          </span>
-        </button>
-        <button class="nav-item" data-view="manage">
-          <span class="nav-icon">🗂️</span>
-          <span>
-            <span class="nav-title">Gestión</span>
-            <span class="nav-subtitle">Colecciones e ingesta</span>
-          </span>
-        </button>
+        <div class="nav-section">Operación</div>
+        <div class="nav-item" data-view="overview"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>Vista general</div>
+        <div class="nav-item" data-view="agents"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <rect x="4" y="4" width="16" height="16" rx="3" />
+            <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+          </svg>Agentes</div>
+        <div class="nav-section">Conocimiento</div>
+        <div class="nav-item" data-view="sources"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <ellipse cx="12" cy="5" rx="8" ry="3" />
+            <path d="M4 5v14c0 1.6 3.6 3 8 3s8-1.4 8-3V5" />
+            <path d="M4 12c0 1.6 3.6 3 8 3s8-1.4 8-3" />
+          </svg>Fuentes</div>
+        <div class="nav-item" data-view="ingest"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <path d="M12 15V3M7 8l5-5 5 5" />
+            <path d="M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4" />
+          </svg>Ingesta</div>
+        <div class="nav-item" data-view="search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4-4" />
+          </svg>Búsqueda</div>
       </nav>
-
-      <div class="sidebar-sources">
-        <h2>Fuentes disponibles</h2>
-        <ul id="sidebar-source-list" class="sidebar-source-list">
-          <li class="muted">Cargando…</li>
-        </ul>
+      <div class="sidebar-foot">
+        <div class="qdrant-pill">
+          <span class="dot" id="qdrant-dot"></span>
+          <div style="line-height:1.25">
+            <div class="qdrant-pill-title" id="qdrant-title">Qdrant…</div>
+            <div class="qdrant-pill-sub" id="qdrant-url">—</div>
+          </div>
+        </div>
+        <div class="sidebar-version">ragent</div>
       </div>
-
-      <footer class="sidebar-footer">
-        <span id="health-indicator" class="health health-unknown" title="Estado del servicio">● comprobando…</span>
-      </footer>
     </aside>
 
-    <!-- ============ Contenido principal ============ -->
-    <main class="main">
-
-      <!-- ========== Vista: Búsqueda ========== -->
-      <section id="view-search" class="view active">
-        <header class="view-header">
-          <h2>Búsqueda</h2>
-          <p>Consulta las fuentes de conocimiento directamente o conversa con un agente que buscará por ti.</p>
-        </header>
-
-        <div class="mode-switch" role="tablist">
-          <button id="mode-direct" class="mode-btn active" role="tab">Búsqueda directa</button>
-          <button id="mode-agent" class="mode-btn" role="tab">Preguntar a un agente</button>
+    <!-- ================= MAIN ================= -->
+    <div class="main">
+      <div class="topbar">
+        <div class="crumb"><span id="crumb-section">Operación</span><span class="sep">/</span><span class="cur"
+            id="crumb-page">Vista general</span></div>
+        <div class="topbar-right">
+          <span class="chip-health" id="health-chip">GET /health · …</span>
+          <span class="chip-host" id="host-chip"></span>
         </div>
-
-        <!-- ---- Modo: búsqueda directa ---- -->
-        <div id="panel-direct" class="panel active">
-          <div class="card">
-            <label class="field-label">Fuente de conocimiento</label>
-            <div id="direct-source-chips" class="chips"></div>
-
-            <form id="direct-search-form" class="search-form">
-              <div class="search-bar">
-                <input id="direct-query" type="text" placeholder="Ej.: portátil de Ana García, manual de fichajes, ticket sobre impresora…" autocomplete="off" required>
-                <select id="direct-limit" title="Número de resultados">
-                  <option value="3">3 resultados</option>
-                  <option value="5" selected>5 resultados</option>
-                  <option value="10">10 resultados</option>
-                  <option value="20">20 resultados</option>
-                </select>
-                <button type="submit" class="btn btn-primary">Buscar</button>
-              </div>
-            </form>
-          </div>
-
-          <div id="direct-results" class="results"></div>
-        </div>
-
-        <!-- ---- Modo: agente ---- -->
-        <div id="panel-agent" class="panel">
-          <div class="card chat-card">
-            <div class="chat-toolbar">
-              <label class="field-label" for="agent-select">Agente</label>
-              <select id="agent-select"></select>
-              <button id="chat-clear" class="btn btn-ghost" type="button" title="Vaciar conversación">Nueva conversación</button>
-            </div>
-
-            <div id="chat-thread" class="chat-thread">
-              <div class="chat-empty">
-                <span class="chat-empty-icon">🤖</span>
-                <p>Pregunta lo que necesites: el agente consultará las fuentes de conocimiento y te responderá.</p>
-              </div>
-            </div>
-
-            <form id="chat-form" class="chat-form">
-              <textarea id="chat-input" rows="1" placeholder="Escribe tu pregunta… (Enter para enviar, Mayús+Enter para salto de línea)" required></textarea>
-              <button type="submit" class="btn btn-primary" id="chat-send">Enviar</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========== Vista: Gestión ========== -->
-      <section id="view-manage" class="view">
-        <header class="view-header">
-          <h2>Gestión de fuentes de conocimiento</h2>
-          <p>Crea las colecciones e inserta datos en las fuentes a través de la API.</p>
-        </header>
-
-        <div class="manage-grid">
-          <!-- Catálogo de fuentes -->
-          <div class="card">
-            <h3 class="card-title">Catálogo</h3>
-            <div id="manage-source-list" class="manage-source-list">
-              <p class="muted">Cargando fuentes…</p>
-            </div>
-          </div>
-
-          <!-- Ingesta -->
-          <div class="card">
-            <h3 class="card-title">Ingesta de datos</h3>
-
-            <label class="field-label" for="ingest-source">Fuente de destino</label>
-            <select id="ingest-source"></select>
-
-            <div class="mode-switch small" role="tablist">
-              <button id="ingest-mode-json" class="mode-btn active" role="tab">Datos JSON</button>
-              <button id="ingest-mode-html" class="mode-btn" role="tab">Fichero HTML</button>
-            </div>
-
-            <!-- Ingesta JSON -->
-            <div id="ingest-panel-json" class="panel active">
-              <p class="hint">Pega una <strong>lista JSON</strong> de objetos o carga un fichero <code>.json</code>. Se enviará a <code>POST /knowledge-source/{id}/points/from-json</code>.</p>
-              <textarea id="ingest-json-text" rows="10" spellcheck="false" placeholder='[
-  { "id": 1, "nombre": "…" },
-  { "id": 2, "nombre": "…" }
-]'></textarea>
-              <div class="ingest-actions">
-                <label class="btn btn-ghost file-btn">
-                  Cargar fichero .json
-                  <input id="ingest-json-file" type="file" accept=".json,application/json" hidden>
-                </label>
-                <button id="ingest-json-send" class="btn btn-primary" type="button">Insertar datos</button>
-              </div>
-            </div>
-
-            <!-- Ingesta HTML -->
-            <div id="ingest-panel-html" class="panel">
-              <p class="hint">Sube un manual en HTML. Se enviará a <code>POST /knowledge-source/{id}/points/from-html</code>. Pensado para la fuente <strong>manuals</strong>.</p>
-              <label id="html-dropzone" class="dropzone">
-                <input id="ingest-html-file" type="file" accept=".html,.htm,text/html" hidden>
-                <span class="dropzone-icon">📄</span>
-                <span id="html-dropzone-text">Arrastra aquí un fichero HTML<br>o haz clic para seleccionarlo</span>
-              </label>
-              <div class="ingest-actions">
-                <button id="ingest-html-send" class="btn btn-primary" type="button" disabled>Subir manual</button>
-              </div>
-            </div>
-
-            <div id="ingest-result" class="ingest-result"></div>
-          </div>
-        </div>
-      </section>
-
-    </main>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
   </div>
+  <div id="toast"></div>
 
-  <div id="toast-container" class="toast-container"></div>
+  <script>
+    'use strict';
 
-  <script src="/static/app.js"></script>
+    /* ============================== estado ============================== */
+    const state = {
+      view: 'overview',
+      data: null,          // /ui/data
+      loadError: null,
+      selAgent: null,
+      selSource: null,
+      ingest: {
+        source: 'tickets',
+        json: JSON.stringify([{ id: '1', title: 'Ejemplo de punto', description: 'Sustituye esta lista por tus datos reales' }], null, 2),
+        file: null,
+        lastResult: null,
+        busyJson: false,
+        busyHtml: false,
+      },
+      search: {
+        source: null,
+        query: '',
+        limit: 5,
+        results: null,      // {items, count, last_data_update, query, sourceId}
+        sel: 0,
+        busy: false,
+      },
+    };
+
+    const VIEW_META = {
+      overview: { crumb: 'Operación', title: 'Vista general' },
+      agents: { crumb: 'Operación', title: 'Agentes' },
+      sources: { crumb: 'Conocimiento', title: 'Fuentes de conocimiento' },
+      ingest: { crumb: 'Conocimiento', title: 'Ingesta' },
+      search: { crumb: 'Conocimiento', title: 'Búsqueda directa' },
+    };
+
+    /* ============================== utilidades ============================== */
+    function esc(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    }
+
+    function fmtInt(value) {
+      if (value === null || value === undefined) return '—';
+      return Number(value).toLocaleString('es-ES');
+    }
+
+    function fmtDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      if (isNaN(date.getTime())) return esc(value);
+      const now = new Date();
+      const sameDay = date.toDateString() === now.toDateString();
+      const time = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      if (sameDay) return `hoy ${time}`;
+      const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+      if (date.toDateString() === yesterday.toDateString()) return 'ayer';
+      return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+
+    function jsonHl(obj) {
+      const json = esc(JSON.stringify(obj, null, 2));
+      return json.replace(
+        /(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+        (match, str, colon, kw, num) => {
+          if (str) return colon ? `<span class="jk">${str}</span>${colon}` : `<span class="js">${str}</span>`;
+          if (kw) return `<span class="jn">${kw}</span>`;
+          if (num) return `<span class="jn">${num}</span>`;
+          return match;
+        },
+      );
+    }
+
+    function toast(message, isError) {
+      const box = document.getElementById('toast');
+      const el = document.createElement('div');
+      el.className = 'toast' + (isError ? ' err' : '');
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+
+    async function api(path, options) {
+      const response = await fetch(path, options);
+      let body = null;
+      try { body = await response.json(); } catch (e) { /* sin cuerpo JSON */ }
+      if (!response.ok || (body && body.status === 'error')) {
+        const message = body && body.error ? body.error.message : `Error HTTP ${response.status}`;
+        throw new Error(message);
+      }
+      return body;
+    }
+
+    /* -------- registro de actividad (local, en el navegador) -------- */
+    function loadActivity() {
+      try { return JSON.parse(localStorage.getItem('ragent_activity') || '[]'); }
+      catch (e) { return []; }
+    }
+
+    function pushActivity(color, html, sub) {
+      const items = loadActivity();
+      items.unshift({ ts: Date.now(), color, html, sub });
+      localStorage.setItem('ragent_activity', JSON.stringify(items.slice(0, 20)));
+    }
+
+    function timeAgo(ts) {
+      const seconds = Math.floor((Date.now() - ts) / 1000);
+      if (seconds < 60) return 'hace un momento';
+      if (seconds < 3600) return `hace ${Math.floor(seconds / 60)} min`;
+      if (seconds < 86400) return `hace ${Math.floor(seconds / 3600)} h`;
+      return fmtDate(new Date(ts).toISOString());
+    }
+
+    /* ============================== carga de datos ============================== */
+    async function loadHealth() {
+      const chip = document.getElementById('health-chip');
+      try {
+        const response = await fetch('/health');
+        chip.textContent = `GET /health · ${response.status}`;
+        chip.classList.toggle('ko', !response.ok);
+      } catch (e) {
+        chip.textContent = 'GET /health · sin conexión';
+        chip.classList.add('ko');
+      }
+    }
+
+    async function loadData() {
+      try {
+        state.data = await api('/ui/data');
+        state.loadError = null;
+        if (state.selAgent === null && state.data.agents.length) state.selAgent = state.data.agents[0].agent_id;
+        if (state.selSource === null && state.data.knowledge_sources.length) state.selSource = state.data.knowledge_sources[0].id;
+        if (state.search.source === null && state.data.knowledge_sources.length) {
+          const tickets = state.data.knowledge_sources.find(s => s.id === 'tickets');
+          state.search.source = (tickets || state.data.knowledge_sources[0]).id;
+        }
+      } catch (e) {
+        state.loadError = e.message;
+      }
+      renderSidebarStatus();
+      render();
+    }
+
+    function renderSidebarStatus() {
+      const dot = document.getElementById('qdrant-dot');
+      const title = document.getElementById('qdrant-title');
+      const url = document.getElementById('qdrant-url');
+      if (!state.data) { title.textContent = 'Qdrant…'; return; }
+      const q = state.data.qdrant;
+      dot.className = 'dot ' + (q.reachable ? 'ok' : 'ko');
+      title.textContent = q.reachable ? 'Qdrant operativo' : 'Qdrant sin conexión';
+      url.textContent = q.url.replace(/^https?:\/\//, '');
+    }
+
+    /* ============================== render principal ============================== */
+    function setView(view) {
+      state.view = view;
+      render();
+    }
+
+    function render() {
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.view === state.view);
+      });
+      const meta = VIEW_META[state.view];
+      document.getElementById('crumb-section').textContent = meta.crumb;
+      document.getElementById('crumb-page').textContent = meta.title;
+
+      const content = document.getElementById('content');
+      if (!state.data) {
+        content.innerHTML = state.loadError
+          ? `<div class="page"><div class="card" style="padding:22px"><b>No se han podido cargar los datos del panel.</b><div style="font-size:13px;color:#8c92a8;margin-top:6px">${esc(state.loadError)}</div></div></div>`
+          : `<div class="page"><p class="page-sub">Cargando…</p></div>`;
+        return;
+      }
+      const views = { overview: renderOverview, agents: renderAgents, sources: renderSources, ingest: renderIngest, search: renderSearch };
+      content.innerHTML = views[state.view]();
+      bindViewEvents();
+    }
+
+    /* ============================== vista general ============================== */
+    function renderOverview() {
+      const d = state.data;
+      const publicAgents = d.agents.filter(a => a.public);
+      const totalPoints = d.knowledge_sources.reduce((acc, s) => acc + (s.points_count || 0), 0);
+      const activity = loadActivity();
+
+      const rows = d.knowledge_sources.map(s => `
+    <div class="trow">
+      <div class="c-src"><div class="t">${esc(s.name)}</div><div class="d">${esc(s.description)}</div></div>
+      <div class="c-col">${esc(s.collection_name)}</div>
+      <div class="c-ret"><span class="badge ${s.exists ? 'green' : 'red'}">${s.exists ? esc(s.retrieval_type) : 'sin crear'}</span></div>
+      <div class="c-pts">${fmtInt(s.points_count)}</div>
+      <div class="c-upd">${fmtDate(s.last_data_update)}</div>
+    </div>`).join('');
+
+      const activityHtml = activity.length
+        ? activity.slice(0, 6).map(a => `
+        <div class="act">
+          <span class="dot2" style="background:${esc(a.color)}"></span>
+          <div><div class="txt">${a.html}</div><div class="sub">${esc(timeAgo(a.ts))}${a.sub ? ' · ' + esc(a.sub) : ''}</div></div>
+        </div>`).join('')
+        : `<div class="empty">Aún no hay actividad registrada en este navegador. Las ingestas, búsquedas y creaciones de colecciones hechas desde el panel aparecerán aquí.</div>`;
+
+      return `
+  <div class="page">
+    <div><h1>Vista general</h1><p class="page-sub">Estado del servicio, del almacén vectorial y del conocimiento indexado.</p></div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-head"><span class="stat-label">Servicio</span><span class="dot ok" style="box-shadow:none"></span></div>
+        <div class="stat-value">Operativo</div>
+        <div class="stat-sub">RAGent · FastAPI</div>
+      </div>
+      <div class="stat">
+        <div class="stat-head"><span class="stat-label">Qdrant</span><span class="dot ${d.qdrant.reachable ? 'ok' : 'ko'}" style="box-shadow:none"></span></div>
+        <div class="stat-value">${d.qdrant.reachable ? fmtInt(d.qdrant.collections_count) + ' colecciones' : 'Sin conexión'}</div>
+        <div class="stat-sub">${esc(d.qdrant.url.replace(/^https?:\/\//, ''))}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-head"><span class="stat-label">Agentes</span><span class="badge indigo">${publicAgents.length} público${publicAgents.length === 1 ? '' : 's'}</span></div>
+        <div class="stat-value">${d.agents.length} definido${d.agents.length === 1 ? '' : 's'}</div>
+        <div class="stat-sub">${esc(d.agents.map(a => a.name).join(' · '))}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-head"><span class="stat-label">Backend de chat</span><span class="dot ok" style="box-shadow:none"></span></div>
+        <div class="stat-value">${esc(d.chat_backend.model)}</div>
+        <div class="stat-sub">temp ${d.chat_backend.temperature} · max ${d.chat_backend.max_tokens} tok</div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="card table-card">
+        <div class="card-head"><h2>Fuentes de conocimiento</h2><span class="hint">${d.knowledge_sources.length} fuentes · ${fmtInt(totalPoints)} puntos</span></div>
+        <div class="thead"><div class="c-src">Fuente</div><div class="c-col">Colección</div><div class="c-ret">Retrieval</div><div class="c-pts">Puntos</div><div class="c-upd">Actualizado</div></div>
+        ${rows}
+      </div>
+      <div class="card activity-card">
+        <div class="card-head"><h2>Actividad reciente</h2></div>
+        <div class="activity-body">${activityHtml}</div>
+      </div>
+    </div>
+  </div>`;
+    }
+
+    /* ============================== agentes ============================== */
+    function renderAgents() {
+      const d = state.data;
+      const agent = d.agents.find(a => a.agent_id === state.selAgent) || d.agents[0];
+
+      const list = d.agents.map(a => `
+    <div class="item-card ${agent && a.agent_id === agent.agent_id ? 'active' : ''}" data-agent="${esc(a.agent_id)}">
+      <div class="item-head"><div class="item-title">${esc(a.name)}</div><span class="badge ${a.public ? 'green' : 'gray'}">${a.public ? 'Público' : 'Interno'}</span></div>
+      <div class="item-desc">${esc(a.description)}</div>
+    </div>`).join('');
+
+      let detail = `<div class="detail"><div class="empty">No hay agentes definidos.</div></div>`;
+      if (agent) {
+        const toolChips = agent.retrieval_tools.map(t => `<span class="tool-chip"><span class="td"></span>${esc(t)}</span>`).join('')
+          + agent.utility_tools.map(t => `<span class="tool-chip util"><span class="td"></span>${esc(t)}</span>`).join('');
+        const toolsCount = agent.retrieval_tools.length + agent.utility_tools.length;
+        detail = `
+    <div class="detail">
+      <div class="detail-head">
+        <div>
+          <div class="detail-title-row">
+            <h2>${esc(agent.name)}</h2>
+            <span class="badge ${agent.public ? 'green' : 'gray'}">${agent.public ? 'Público' : 'Interno'}</span>
+            ${agent.enable_tools ? '<span class="badge indigo">Herramientas activas</span>' : '<span class="badge gray">Sin herramientas</span>'}
+          </div>
+          <p class="detail-desc">${esc(agent.description)}</p>
+        </div>
+      </div>
+      <div class="kv-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kv"><div class="k">agent_id</div><div class="v">${esc(agent.agent_id)}</div></div>
+        <div class="kv"><div class="k">modelo</div><div class="v">${esc(agent.model)}</div></div>
+        <div class="kv"><div class="k">public</div><div class="v ${agent.public ? 'green' : 'red'}">${agent.public}</div></div>
+        <div class="kv"><div class="k">enable_tools</div><div class="v ${agent.enable_tools ? 'green' : 'red'}">${agent.enable_tools}</div></div>
+      </div>
+      <div class="sect-label">System prompt</div>
+      <div class="code" style="max-height:180px;margin-bottom:20px">${esc(agent.system_prompt)}</div>
+      <div class="sect-label">Herramientas registradas · ${toolsCount}</div>
+      ${toolsCount
+            ? `<div style="display:flex;flex-direction:column;gap:8px">
+             <div style="display:flex;flex-wrap:wrap;gap:7px">${toolChips}</div>
+             <div style="font-size:11.5px;color:#a5aabb">${agent.retrieval_tools.length} herramientas de retrieval sobre fuentes de conocimiento · ${agent.utility_tools.length} utilidades</div>
+           </div>`
+            : `<div class="empty">Este agente no tiene herramientas registradas.</div>`}
+    </div>`;
+      }
+
+      return `
+  <div class="page">
+    <div><h1>Agentes</h1><p class="page-sub">Definiciones publicadas sobre el mismo proveedor y modelo base.</p></div>
+    <div class="split">
+      <div style="width:280px;flex:none;display:flex;flex-direction:column;gap:8px">${list}</div>
+      ${detail}
+    </div>
+  </div>`;
+    }
+
+    /* ============================== fuentes ============================== */
+    function renderSources() {
+      const d = state.data;
+      const source = d.knowledge_sources.find(s => s.id === state.selSource) || d.knowledge_sources[0];
+
+      const list = d.knowledge_sources.map(s => `
+    <div class="item-card ${source && s.id === source.id ? 'active' : ''}" data-source="${esc(s.id)}">
+      <div class="item-head"><div class="item-title" style="font-size:13.5px">${esc(s.name)}</div><span class="badge ${s.exists ? 'green' : 'red'}">${s.exists ? esc(s.retrieval_type) : 'sin crear'}</span></div>
+      <div class="mono" style="font-size:11px;color:#8c92a8;margin-top:3px">${s.exists ? fmtInt(s.points_count) + ' puntos' : 'colección no creada'}</div>
+    </div>`).join('');
+
+      let detail = `<div class="detail"><div class="empty">No hay fuentes de conocimiento.</div></div>`;
+      if (source) {
+        detail = `
+    <div class="detail">
+      <div class="detail-head">
+        <div>
+          <div class="detail-title-row">
+            <h2>${esc(source.name)}</h2>
+            <span class="badge green">${esc(source.retrieval_type)}</span>
+            <span class="badge ${source.exists ? 'gray' : 'red'}">${source.exists ? 'Colección creada' : 'Colección sin crear'}</span>
+          </div>
+          <p class="detail-desc">${esc(source.description)}</p>
+        </div>
+        <div style="display:flex;gap:8px;flex:none">
+          <button class="btn-sec" id="btn-goto-search">Buscar</button>
+          <button class="btn" id="btn-create-collection" ${source.exists ? 'disabled title="La colección ya existe en Qdrant"' : ''}>Crear colección</button>
+        </div>
+      </div>
+      <div class="kv-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="kv"><div class="k">collection_name</div><div class="v">${esc(source.collection_name)}</div></div>
+        <div class="kv"><div class="k">retrieval_type</div><div class="v">${esc(source.retrieval_type)}</div></div>
+        <div class="kv"><div class="k">dense_vector_name</div><div class="v">${esc(source.dense_vector_name || '—')}</div></div>
+        <div class="kv"><div class="k">sparse_vector_name</div><div class="v">${esc(source.sparse_vector_name || '—')}</div></div>
+        <div class="kv"><div class="k">puntos</div><div class="v">${fmtInt(source.points_count)}</div></div>
+        <div class="kv"><div class="k">última actualización</div><div class="v">${fmtDate(source.last_data_update)}</div></div>
+      </div>
+      <div class="sect-label">payload_keys</div>
+      <div class="code pre">${jsonHl(source.payload_keys)}</div>
+    </div>`;
+      }
+
+      return `
+  <div class="page">
+    <div><h1>Fuentes de conocimiento</h1><p class="page-sub">Colecciones de Qdrant, sus claves de payload y su estrategia de recuperación.</p></div>
+    <div class="split">
+      <div style="width:260px;flex:none;display:flex;flex-direction:column;gap:8px">${list}</div>
+      ${detail}
+    </div>
+  </div>`;
+    }
+
+    /* ============================== ingesta ============================== */
+
+    function renderIngest() {
+      const d = state.data;
+      const jsonSources = d.knowledge_sources.filter(s => s.id !== 'manuals');
+      const chips = jsonSources.map(s =>
+        `<span class="chip ${state.ingest.source === s.id ? 'active' : ''}" data-ingest-source="${esc(s.id)}">${esc(s.id)}</span>`).join('');
+
+      const file = state.ingest.file;
+      const filePill = file ? `
+    <div class="file-pill">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4b57d6" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+      <div style="flex:1"><div class="n">${esc(file.name)}</div><div class="m">${(file.size / 1024).toFixed(0)} KB · ${esc(file.type || 'text/html')}</div></div>
+      <span class="ok">✓ listo</span>
+    </div>` : '';
+
+      const last = state.ingest.lastResult;
+      const lastHtml = last ? `
+    <div class="card result-card">
+      <div class="result-head"><h2>Última ingesta</h2><span class="chip-status ${last.ok ? 'ok' : 'ko'}">${last.ok ? 'status: ok · upsert' : 'status: error'}</span></div>
+      <div class="result-body">
+        <div><div class="result-points">${last.ok ? fmtInt(last.points) : '—'}</div><div class="result-points-lbl">puntos</div></div>
+        <div class="code pre" style="flex:1;font-size:12px">${jsonHl(last.raw)}</div>
+      </div>
+    </div>` : '';
+
+      return `
+  <div class="page">
+    <div><h1>Ingesta</h1><p class="page-sub">Añade o actualiza puntos en una fuente desde JSON estructurado o desde un manual HTML.</p></div>
+    <div class="split" style="align-items:stretch">
+      <!-- from json -->
+      <div class="card ingest-card">
+        <div class="ingest-title"><h2>Desde JSON</h2><span class="chip-endpoint">POST · from-json</span></div>
+        <p class="ingest-sub">Lista JSON de objetos. Válido para ${jsonSources.map(s => esc(s.id)).join(', ')}.</p>
+        <div class="chips" style="margin-bottom:12px"><span class="lbl">Fuente</span>${chips}</div>
+        <textarea class="json-input" id="json-input" spellcheck="false">${esc(state.ingest.json)}</textarea>
+        <div class="ingest-foot">
+          <span class="note" id="json-note"></span>
+          <button class="btn" id="btn-ingest-json" ${state.ingest.busyJson ? 'disabled' : ''}>${state.ingest.busyJson ? '<span class="spinner"></span>Insertando…' : 'Insertar puntos'}</button>
+        </div>
+      </div>
+      <!-- from html -->
+      <div class="card ingest-card">
+        <div class="ingest-title"><h2>Desde HTML</h2><span class="chip-endpoint">POST · from-html</span></div>
+        <p class="ingest-sub">Manual HTML convertido a bloques de texto e imagen. Solo para la fuente <b style="color:#5d6478">manuals</b>.</p>
+        <div class="drop" id="drop-zone">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#b3b8cc" stroke-width="1.6"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
+          <div style="text-align:center"><div class="t">Arrastra un fichero .html</div><div class="s">o haz clic para seleccionarlo</div></div>
+        </div>
+        <input type="file" id="file-input" accept=".html,.htm,text/html" style="display:none">
+        ${filePill}
+        <div class="ingest-foot" style="justify-content:flex-end">
+          <button class="btn" id="btn-ingest-html" ${(!file || state.ingest.busyHtml) ? 'disabled' : ''}>${state.ingest.busyHtml ? '<span class="spinner"></span>Subiendo…' : 'Subir manual'}</button>
+        </div>
+      </div>
+    </div>
+    ${lastHtml}
+  </div>`;
+    }
+
+    /* ============================== búsqueda ============================== */
+    function renderSearch() {
+      const d = state.data;
+      const source = d.knowledge_sources.find(s => s.id === state.search.source) || d.knowledge_sources[0];
+      const chips = d.knowledge_sources.map(s =>
+        `<span class="chip ${source && s.id === source.id ? 'active' : ''}" data-search-source="${esc(s.id)}">${esc(s.id)}</span>`).join('');
+
+      const modes = ['semantic', 'lexical', 'hybrid'].map(m =>
+        `<span class="${source && source.retrieval_type === m ? 'on' : ''}">${m}</span>`).join('');
+
+      const r = state.search.results;
+      let resultsCol = '';
+      let detail = `
+    <div class="detail search-detail">
+      <div class="empty" style="margin:auto;text-align:center">Lanza una búsqueda para ver los resultados.<br>Retrieval <b>${source ? esc(source.retrieval_type) : ''}</b> sobre la colección <span class="mono">${source ? esc(source.collection_name) : ''}</span>.</div>
+    </div>`;
+
+      if (r) {
+        const cards = r.items.map((item, index) => `
+      <div class="item-card ${index === state.search.sel ? 'active' : ''}" data-result="${index}">
+        <div class="res-head">
+          <div style="display:flex;align-items:center;gap:7px"><span class="res-idx">${String(index + 1).padStart(2, '0')}</span><span class="res-id">${esc(shortId(item))}</span></div>
+          <span class="res-score">${item.score.toFixed(3)}</span>
+        </div>
+        <p class="res-snippet">${esc(item.content)}</p>
+      </div>`).join('');
+
+        resultsCol = `
+      <div class="results-meta"><b>${r.count} resultado${r.count === 1 ? '' : 's'}</b> · por score${r.last_data_update ? ` · <span class="mono">last_data_update ${esc(r.last_data_update)}</span>` : ''}</div>
+      ${cards || '<div class="empty">Sin resultados para esta consulta.</div>'}`;
+
+        const selected = r.items[state.search.sel];
+        if (selected) {
+          const pct = Math.max(0, Math.min(1, selected.score));
+          detail = `
+      <div class="detail search-detail">
+        <div class="detail-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="badge indigo">${esc(r.sourceId)}</span>
+              <span class="mono" style="font-size:12.5px;color:#8c92a8">${esc(shortId(selected))}</span>
+            </div>
+            <h2 style="margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.3">${esc(titleOf(selected))}</h2>
+          </div>
+          <div class="score-ring-wrap">
+            <div class="score-ring" style="background:conic-gradient(#4b57d6 ${pct * 360}deg, #eef0fd 0deg)"><div class="inner">${selected.score.toFixed(2).replace(/^0/, '')}</div></div>
+            <div class="score-lbl">SCORE</div>
+          </div>
+        </div>
+        <div class="sect-label">Contenido</div>
+        <p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#33394a;white-space:pre-wrap">${esc(selected.content)}</p>
+        <div class="sect-label">Metadata</div>
+        <div class="code pre">${jsonHl(selected.metadata)}</div>
+        <div style="margin-top:auto;padding-top:18px;display:flex;gap:9px">
+          <button class="btn-sec indigo" id="btn-copy-json">Copiar JSON</button>
+        </div>
+      </div>`;
+        }
+      }
+
+      return `
+  <div style="display:flex;flex-direction:column;height:100%;min-height:0">
+    <div style="padding:22px 28px 6px"><h1>Búsqueda directa</h1><p class="page-sub">Retrieval sobre Qdrant sin generar respuesta conversacional.</p></div>
+    <div style="padding:14px 28px 12px">
+      <div class="search-bar">
+        <div class="chips"><span class="lbl">Fuente</span>${chips}</div>
+        <div class="search-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c92a8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input id="search-input" placeholder="Escribe tu consulta…" value="${esc(state.search.query)}">
+        </div>
+        <div class="seg" title="La estrategia de retrieval está definida por la fuente de conocimiento">${modes}</div>
+        <div class="stepper">
+          <button id="limit-dec">−</button>
+          <span class="val">${state.search.limit}</span>
+          <button id="limit-inc">+</button>
+        </div>
+        <button class="btn" id="btn-search" style="height:40px;padding:0 18px" ${state.search.busy ? 'disabled' : ''}>${state.search.busy ? '<span class="spinner"></span>Buscando…' : 'Buscar'}</button>
+      </div>
+    </div>
+    <div style="flex:1;min-height:0;display:flex;gap:16px;padding:0 28px 24px">
+      <div class="results-col">${resultsCol || '<div class="empty">Los resultados aparecerán aquí.</div>'}</div>
+      ${detail}
+    </div>
+  </div>`;
+    }
+    function shortId(item) {
+      const meta = item.metadata || {};
+      if (meta.number) return '#' + meta.number;
+      const id = String(item.id);
+      return id.length > 14 ? id.slice(0, 14) + '…' : id;
+    }
+
+    function titleOf(item) {
+      const meta = item.metadata || {};
+      return meta.title || meta.name || (item.content || '').slice(0, 90) || 'Resultado';
+    }
+
+    /* ============================== acciones ============================== */
+    async function doSearch() {
+      const query = state.search.query.trim();
+      if (!query) { toast('Escribe una consulta antes de buscar', true); return; }
+      state.search.busy = true;
+      render();
+      try {
+        const body = await api(`/knowledge-source/${encodeURIComponent(state.search.source)}/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit: state.search.limit }),
+        });
+        state.search.results = { ...body.result, sourceId: body.knowledge_source_id };
+        state.search.sel = 0;
+        pushActivity('#c58b2f',
+          `Búsqueda en <span class="m">${esc(state.search.source)}</span> · «${esc(query.slice(0, 40))}»`,
+          `${body.result.count} resultados`);
+      } catch (e) {
+        toast('Error en la búsqueda: ' + e.message, true);
+      }
+      state.search.busy = false;
+      render();
+    }
+
+    async function doIngestJson() {
+      let parsed;
+      try {
+        parsed = JSON.parse(document.getElementById('json-input').value);
+      } catch (e) {
+        toast('El contenido no es JSON válido', true);
+        return;
+      }
+      if (!Array.isArray(parsed)) { toast('Los datos deben ser una lista JSON de objetos', true); return; }
+      state.ingest.json = JSON.stringify(parsed, null, 2);
+      state.ingest.busyJson = true;
+      render();
+      try {
+        const body = await api(`/knowledge-source/${encodeURIComponent(state.ingest.source)}/points/from-json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsed),
+        });
+        state.ingest.lastResult = { ok: true, points: body.result.points, raw: { knowledge_source_id: body.knowledge_source_id, ...body.result } };
+        pushActivity('#4b57d6',
+          `<b style="font-weight:600">Ingesta</b> en <span class="m">${esc(state.ingest.source)}</span> · +${body.result.points} puntos`,
+          'from-json');
+        toast(`Ingesta completada: ${body.result.points} puntos en ${state.ingest.source}`);
+        loadData(); // refresca contadores
+      } catch (e) {
+        state.ingest.lastResult = { ok: false, points: 0, raw: { error: e.message } };
+        toast('Error en la ingesta: ' + e.message, true);
+      }
+      state.ingest.busyJson = false;
+      render();
+    }
+
+    async function doIngestHtml() {
+      const file = state.ingest.file;
+      if (!file) return;
+      state.ingest.busyHtml = true;
+      render();
+      try {
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        const body = await api('/knowledge-source/manuals/points/from-html', { method: 'POST', body: formData });
+        state.ingest.lastResult = { ok: true, points: body.result.points, raw: { knowledge_source_id: body.knowledge_source_id, ...body.result } };
+        pushActivity('#0b8f6f',
+          `Manual HTML subido · <span class="m">${esc(file.name)}</span>`,
+          `from-html · ${body.result.points} puntos`);
+        toast(`Manual ingerido: ${body.result.points} puntos en manuals`);
+        state.ingest.file = null;
+        loadData();
+      } catch (e) {
+        state.ingest.lastResult = { ok: false, points: 0, raw: { error: e.message } };
+        toast('Error subiendo el manual: ' + e.message, true);
+      }
+      state.ingest.busyHtml = false;
+      render();
+    }
+
+    async function doCreateCollection(sourceId) {
+      try {
+        const body = await api(`/knowledge-source/${encodeURIComponent(sourceId)}`, { method: 'POST' });
+        const created = body.result.collection_created;
+        pushActivity('#8c92a8', `Colección creada · <span class="m">${esc(sourceId)}</span>`, null);
+        toast(created ? `Colección '${sourceId}' creada` : `La colección '${sourceId}' ya existía`);
+        loadData();
+      } catch (e) {
+        toast('Error creando la colección: ' + e.message, true);
+      }
+    }
+
+    /* ============================== eventos ============================== */
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('click', () => setView(el.dataset.view));
+    });
+    document.getElementById('host-chip').textContent = location.host;
+
+    function bindViewEvents() {
+      // agentes
+      document.querySelectorAll('[data-agent]').forEach(el => {
+        el.addEventListener('click', () => { state.selAgent = el.dataset.agent; render(); });
+      });
+      // fuentes
+      document.querySelectorAll('[data-source]').forEach(el => {
+        el.addEventListener('click', () => { state.selSource = el.dataset.source; render(); });
+      });
+      const createBtn = document.getElementById('btn-create-collection');
+      if (createBtn) createBtn.addEventListener('click', () => doCreateCollection(state.selSource));
+      const gotoSearch = document.getElementById('btn-goto-search');
+      if (gotoSearch) gotoSearch.addEventListener('click', () => { state.search.source = state.selSource; setView('search'); });
+
+      // ingesta
+      document.querySelectorAll('[data-ingest-source]').forEach(el => {
+        el.addEventListener('click', () => {
+          state.ingest.json = document.getElementById('json-input').value;
+          state.ingest.source = el.dataset.ingestSource;
+          render();
+        });
+      });
+      const jsonInput = document.getElementById('json-input');
+      if (jsonInput) {
+        const note = document.getElementById('json-note');
+        const updateNote = () => {
+          state.ingest.json = jsonInput.value;
+          try {
+            const parsed = JSON.parse(jsonInput.value);
+            note.textContent = Array.isArray(parsed) ? `${parsed.length} objeto${parsed.length === 1 ? '' : 's'} · listo para indexar` : 'Debe ser una lista JSON';
+          } catch (e) { note.textContent = 'JSON no válido'; }
+        };
+        jsonInput.addEventListener('input', updateNote);
+        updateNote();
+      }
+      const btnJson = document.getElementById('btn-ingest-json');
+      if (btnJson) btnJson.addEventListener('click', doIngestJson);
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+      if (dropZone && fileInput) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', event => { event.preventDefault(); dropZone.classList.add('over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+        dropZone.addEventListener('drop', event => {
+          event.preventDefault();
+          dropZone.classList.remove('over');
+          if (event.dataTransfer.files.length) setHtmlFile(event.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => { if (fileInput.files.length) setHtmlFile(fileInput.files[0]); });
+      }
+      const btnHtml = document.getElementById('btn-ingest-html');
+      if (btnHtml) btnHtml.addEventListener('click', doIngestHtml);
+
+      // búsqueda
+      document.querySelectorAll('[data-search-source]').forEach(el => {
+        el.addEventListener('click', () => { state.search.source = el.dataset.searchSource; render(); });
+      });
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => { state.search.query = searchInput.value; });
+        searchInput.addEventListener('keydown', event => { if (event.key === 'Enter') doSearch(); });
+      }
+      const dec = document.getElementById('limit-dec');
+      const inc = document.getElementById('limit-inc');
+      if (dec) dec.addEventListener('click', () => { state.search.limit = Math.max(1, state.search.limit - 1); render(); });
+      if (inc) inc.addEventListener('click', () => { state.search.limit = Math.min(50, state.search.limit + 1); render(); });
+      const btnSearch = document.getElementById('btn-search');
+      if (btnSearch) btnSearch.addEventListener('click', doSearch);
+      document.querySelectorAll('[data-result]').forEach(el => {
+        el.addEventListener('click', () => { state.search.sel = Number(el.dataset.result); render(); });
+      });
+      const copyBtn = document.getElementById('btn-copy-json');
+      if (copyBtn) copyBtn.addEventListener('click', () => {
+        const selected = state.search.results && state.search.results.items[state.search.sel];
+        if (!selected) return;
+        navigator.clipboard.writeText(JSON.stringify(selected, null, 2))
+          .then(() => toast('JSON copiado al portapapeles'))
+          .catch(() => toast('No se pudo copiar', true));
+      });
+    }
+
+    function setHtmlFile(file) {
+      if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') {
+        toast('Solo se admiten ficheros HTML', true);
+        return;
+      }
+      state.ingest.file = file;
+      render();
+    }
+
+    /* ============================== init ============================== */
+    render();
+    loadHealth();
+    loadData();
+    setInterval(loadHealth, 30000);
+  </script>
 </body>
+
 </html>

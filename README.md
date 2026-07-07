@@ -22,6 +22,18 @@ La API separa tres superficies funcionales:
 - Gestión e ingesta de fuentes de conocimiento: endpoints para listar fuentes, crear colecciones y añadir datos indexados.
 - Búsqueda directa en fuentes de conocimiento: endpoints de retrieval que devuelven documentos encontrados, sin llamar a un agente ni generar una respuesta conversacional.
 
+## Panel de administración
+
+RAGent incluye un panel de administración web servido por la propia aplicación en `/ui` (la raíz `/` redirige a él). El panel se apoya en la API publicada y en el endpoint agregado `GET /ui/data`, y ofrece cinco vistas:
+
+- Vista general: estado del servicio, de Qdrant, de los agentes y del backend de chat, junto con la tabla de fuentes de conocimiento (puntos indexados y última actualización) y la actividad reciente realizada desde el panel.
+- Agentes: definiciones del catálogo con su configuración, system prompt y herramientas registradas.
+- Fuentes: detalle de cada fuente de conocimiento (colección, estrategia de retrieval, claves de payload) con acciones para crear la colección en Qdrant o saltar a la búsqueda.
+- Ingesta: inserción de puntos desde JSON estructurado (`from-json`) o desde un manual HTML (`from-html`).
+- Búsqueda: retrieval directo sobre una fuente, con resultados puntuados, contenido y metadata de cada documento.
+
+El frontend es un único fichero estático (`app/ui/index.html`) sin dependencias de build, servido por el router `app/api/routers/ui.py`.
+
 ## Agentes
 
 Los agentes se definen en `app/core/agent/catalog.py`. Cada definición indica:

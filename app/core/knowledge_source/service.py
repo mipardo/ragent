@@ -19,6 +19,8 @@ class KnowledgeSourceService:
      - Añadir datos a una fuente de conocimiento (upsert_knowledge_source_data).
      - Buscar documentos en una fuente concreta desde la API (search_knowledge_source).
      - Recuperar documentos relevantes para una consulta (retrieve).
+     - Comprobar el estado de Qdrant (get_qdrant_status).
+     - Comprobar el estado de una fuente en Qdrant (get_knowledge_source_status).
     """
 
     def __init__(self, settings: Settings) -> None:
@@ -55,6 +57,39 @@ class KnowledgeSourceService:
         definition = self.catalog.get_knowledge_source(knowledge_source_id)
         ingestor = self.ingestor_factory.build(definition)
         return await ingestor.upsert_knowledge_source_data(data)
+
+    async def get_qdrant_status(self) -> dict:
+        try:
+            collections = await self.qdrant_client.get_collections()
+            return {
+                "reachable": True,
+                "collections_count": len(collections.collections),
+            }
+        except Exception:
+            return {
+                "reachable": False,
+                "collections_count": None,
+            }
+
+
+    async def get_knowledge_source_status(self, knowledge_source_id: str) -> dict:
+        definition = self.catalog.get_knowledge_source(knowledge_source_id)
+        try:
+            collection_info = await self.qdrant_client.get_collection(collection_name=definition.collection_name)
+        except Exception:
+            return {
+                "exists": False,
+                "points_count": None,
+                "last_data_update": None,
+            }
+        last_data_update = None
+        if collection_info.config.metadata:
+            last_data_update = collection_info.config.metadata.get("last_collection_update")
+        return {
+            "exists": True,
+            "points_count": collection_info.points_count,
+            "last_data_update": last_data_update,
+        }
 
 
     async def retrieve(self, query: str, limit: int, source_id: str, query_filter: Filter | None = None) -> RetrievedContext:
