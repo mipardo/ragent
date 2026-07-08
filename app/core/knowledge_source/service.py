@@ -3,8 +3,8 @@ from qdrant_client.models import Filter
 from qdrant_client import AsyncQdrantClient
 from app.core.utils.embeddings import EmbeddingService
 from app.core.knowledge_source.catalog import KnowledgeSourceCatalog
-from app.core.knowledge_source.factory_ingestor import KnowledgeSourceIngestorFactory
-from app.core.knowledge_source.factory_retrieval import KnowledgeSourceRetrievalFactory
+from app.core.knowledge_source.ingestion.factory import KnowledgeSourceIngestorFactory
+from app.core.knowledge_source.retrieval.factory import KnowledgeSourceRetrievalFactory
 from app.core.knowledge_source.entities import KnowledgeSourceDefinition, RetrievedContext
 
 
